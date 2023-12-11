@@ -1,0 +1,7 @@
+Run - go install
+
+Run - CompileDaemon -command="./go_crud"
+
+build - go build
+
+migration :- go run migration/migrate.go
