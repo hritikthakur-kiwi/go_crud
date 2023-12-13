@@ -6,6 +6,7 @@ import (
 	model "go_crud/models"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -72,17 +73,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	// "sub": user.ID,
-	// "exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
-	// })
-
-	tokenString, err := token.SignedString("jshjdshjdsjs")
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	
 	log.Println("dsdd", tokenString, "dsds", token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
