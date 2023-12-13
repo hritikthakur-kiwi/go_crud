@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -11,37 +14,31 @@ import (
 func VerifyUser(c *gin.Context) {
 	// tokenString := c.GetHeader("Authorization")
 	tokenString, err := c.Cookie("Authorization")
-
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
-
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+		log.Fatal(err)
 	}
 
-	if !token.Valid {
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+		c.Set("user", claims["sub"])
+
+		c.Next()
+	} else {
 		c.AbortWithStatus(http.StatusUnauthorized)
-		return
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	userID, ok := claims["user_id"].(string)
-	if !ok {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-	c.Set("user_id", userID)
-	c.Next()
 }

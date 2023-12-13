@@ -88,13 +88,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message": "login successFully",
-		"user":    user,
-		"token":   tokenString,
-	})
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+
+	c.JSON(200, gin.H{
+		"message": "login successFully",
+	})
 }
 
 func UpdateUser(c *gin.Context) {
@@ -102,7 +101,7 @@ func UpdateUser(c *gin.Context) {
 	id, err := c.Get("user_id")
 
 	if err {
-		c.Status(500)
+		c.JSON(500, gin.H{"error": "cannot find user"})
 	}
 
 	var body struct {
@@ -129,7 +128,6 @@ func UpdateUser(c *gin.Context) {
 	user.Email = body.Email
 	user.Address = body.Address
 	user.Gender = body.Gender
-	user.Password = body.Password
 	initializers.DB.Save(&user)
 
 	c.JSON(http.StatusOK, gin.H{"message": "user updated successfully", "user": user})

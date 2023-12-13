@@ -3,6 +3,7 @@ package main
 import (
 	"go_crud/controllers"
 	"go_crud/initializers"
+	auth "go_crud/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,5 +21,6 @@ func main() {
 	})
 	r.POST("/addUser", controllers.Create)
 	r.POST("/login", controllers.Login)
+	r.PUT("/updateUser", auth.VerifyUser, controllers.UpdateUser)
 	r.Run()
 }
