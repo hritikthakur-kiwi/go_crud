@@ -79,7 +79,7 @@ func Login(c *gin.Context) {
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
-	
+
 	log.Println("dsdd", tokenString, "dsds", token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -93,6 +93,44 @@ func Login(c *gin.Context) {
 		"user":    user,
 		"token":   tokenString,
 	})
-	return
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+}
 
+func UpdateUser(c *gin.Context) {
+
+	id, err := c.Get("user_id")
+
+	if err {
+		c.Status(500)
+	}
+
+	var body struct {
+		Name     string
+		FullName string
+		Contact  uint64
+		Email    string
+		Address  string
+		Gender   string
+		Password string
+	}
+	c.Bind(&body)
+
+	var user model.User
+
+	userDetails := initializers.DB.First(&user, id)
+
+	if userDetails.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+	}
+	user.Name = body.Name
+	user.FullName = body.FullName
+	user.Contact = body.Contact
+	user.Email = body.Email
+	user.Address = body.Address
+	user.Gender = body.Gender
+	user.Password = body.Password
+	initializers.DB.Save(&user)
+
+	c.JSON(http.StatusOK, gin.H{"message": "user updated successfully", "user": user})
 }
