@@ -5,7 +5,10 @@ import (
 	"go_crud/initializers"
 	model "go_crud/models"
 	"log"
+	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -60,7 +63,7 @@ func Login(c *gin.Context) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(401, gin.H{"error": "User not found"})
 			return
-		} 
+		}
 	}
 	log.Println("sddd", user)
 	comparePass := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
@@ -68,9 +71,31 @@ func Login(c *gin.Context) {
 		c.JSON(401, gin.H{"error": "Invalid password"})
 		return
 	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// "sub": user.ID,
+	// "exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	// })
+
+	tokenString, err := token.SignedString("jshjdshjdsjs")
+	log.Println("dsdd", tokenString, "dsds", token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to create token",
+		})
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"message": "login successFully",
 		"user":    user,
+		"token":   tokenString,
 	})
+	return
 
 }
