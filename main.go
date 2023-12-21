@@ -1,9 +1,8 @@
 package main
 
 import (
-	"go_crud/controllers"
 	"go_crud/initializers"
-	auth "go_crud/middleware"
+	"go_crud/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,13 +13,7 @@ func init() {
 }
 func main() {
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "helloj",
-		})
-	})
-	r.POST("/addUser", controllers.Create)
-	r.POST("/login", controllers.Login)
-	r.PUT("/updateUser", auth.VerifyUser, controllers.UpdateUser)
+	routes.UserRoutes(r)
+	routes.PostRoutes(r)
 	r.Run()
 }
