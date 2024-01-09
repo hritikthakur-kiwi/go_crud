@@ -1,13 +1,13 @@
 package model
 
 import (
-	uuid "github.com/jackc/pgx/pgtype/ext/gofrs-uuid"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	ID       uuid.UUID `gorm:"type:uuid;default:uuid-ossp.gen_random_uuid();primaryKey" json:"id"`
+	ID       uuid.UUID `gorm:"column:id;primaryKey"`
 	Name     string    `gorm:"column:name"`
 	FullName string    `gorm:"column:full_name"`
 	Contact  uint64    `gorm:"column:contact"`
@@ -15,5 +15,13 @@ type User struct {
 	Address  string    `gorm:"column:address"`
 	Gender   string    `gorm:"column:Gender"`
 	Password string    `gorm:"column:Password"`
-	Posts    []Post    `gorm:"foreignKey:UserId"`
+}
+
+func (user *User) BeforeCreate(tx *gorm.DB) error {
+	id, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	user.ID = id
+	return nil
 }

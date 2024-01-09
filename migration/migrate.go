@@ -12,6 +12,8 @@ func init() {
 }
 
 func main() {
+	initializers.DB = initializers.DB.Debug()
+	initializers.DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 	err := initializers.DB.AutoMigrate(&model.User{}, &model.Post{})
 	if err != nil {
 		log.Fatal("failed to perform auto-migration:", err)
