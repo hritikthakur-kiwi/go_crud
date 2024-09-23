@@ -12,12 +12,12 @@ import (
 )
 
 func VerifyUser(c *gin.Context) {
-	// tokenString := c.GetHeader("Authorization")
-	tokenString, err := c.Cookie("Authorization")
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
+	tokenString := c.GetHeader("Authorization")
+	// tokenString, err := c.Cookie("Authorization")
+	// if err != nil {
+	// 	c.AbortWithStatus(http.StatusUnauthorized)
+	// 	return
+	// }
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

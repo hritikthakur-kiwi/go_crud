@@ -1,10 +1,10 @@
 package model
 
 import (
-	"github.com/gofrs/uuid"
-	"gorm.io/gorm"
+    "github.com/gofrs/uuid"
+    "gorm.io/gorm"
+    "time"
 )
-
 type DraftStatus string
 
 const (
@@ -14,8 +14,7 @@ const (
 )
 
 type Post struct {
-	gorm.Model
-	ID       uuid.UUID   `gorm:"column:id;primaryKey"`
+    ID       uuid.UUID   `gorm:"column:id;primaryKey"`
 	PostName string      `gorm:"column:post_name"`
 	UserId   string      `gorm:"column:user_id;not null;type:uuid"`
 	User     User        `gorm:"foreignKey:UserId"`
@@ -23,6 +22,8 @@ type Post struct {
 	Draft    DraftStatus `gorm:"column:draft"`
 	Likes    int64       `gorm:"column:likes"`
 	Comments []string    `gorm:"column:comments;comment:Comments;type:TEXT[]"`
+    CreatedAt time.Time `gorm:"column:created_at"`
+    UpdatedAt time.Time `gorm:"column:updated_at"`
 }
 
 func (post *Post) BeforeCreate(tx *gorm.DB) error {

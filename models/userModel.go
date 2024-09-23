@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/gofrs/uuid"
-	"gorm.io/gorm"
+    "time"
+    "github.com/gofrs/uuid"
+    "gorm.io/gorm"
 )
 
 type User struct {
@@ -15,6 +16,8 @@ type User struct {
 	Address  string    `gorm:"column:address"`
 	Gender   string    `gorm:"column:Gender"`
 	Password string    `gorm:"column:Password"`
+	CreatedAt time.Time `gorm:"column:created_at"`
+    UpdatedAt time.Time `gorm:"column:updated_at"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) error {

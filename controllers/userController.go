@@ -16,7 +16,6 @@ import (
 )
 
 func Create(res *gin.Context) {
-
 	var body struct {
 		Name     string
 		FullName string
@@ -32,6 +31,7 @@ func Create(res *gin.Context) {
 		res.Status(500)
 		return
 	}
+	log.Println("sddd", body);
 	user := model.User{
 		Name:     body.Name,
 		FullName: body.FullName,
@@ -52,7 +52,6 @@ func Create(res *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	// id := c.Param("id")
 	var body struct {
 		Email    string
 		Password string
@@ -79,8 +78,6 @@ func Login(c *gin.Context) {
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
-
-	log.Println("dsdd", tokenString, "dsds", token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "failed to create token",
@@ -88,18 +85,19 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	// c.SetSameSite(http.SameSiteLaxMode)
+	// c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
 	c.JSON(200, gin.H{
 		"message": "login successFully",
 		"user":    user,
+		"token":   tokenString,
 	})
 }
 
 func UpdateUser(c *gin.Context) {
 
-	id, err := c.Get("user_id")
+	id, err := c.Get("user")
 
 	if err {
 		c.JSON(500, gin.H{"error": "cannot find user"})

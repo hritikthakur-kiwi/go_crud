@@ -10,20 +10,23 @@ import (
 )
 
 func AddPost(c *gin.Context) {
-
+	log.Println(c.Get("user"));
+	userId, _ := c.Get("user")
+     
+	log.Println(userId)
 	var body struct {
-		postName string
+		PostName string
 		userId   uuid.UUID
-		contents  uint64
+		Contents  uint64
 		draft    string
 	}
 	c.Bind(&body)
 	draftStatus := model.DraftStatus("pending")
 
 	post := model.Post{
-		PostName: "ksksjkddfddd",
-		UserId:   "19476a76-eb23-4616-96aa-0baa2da4211a",
-		Contents:  12,
+		PostName: body.PostName,
+		UserId:   userId.(string),
+		Contents: body.Contents,
 		Draft:    draftStatus,
 	}
 	log.Print(post)
