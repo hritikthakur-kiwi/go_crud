@@ -1,5 +1,6 @@
 package controllers
 
+
 import (
 	"errors"
 	"go_crud/initializers"
@@ -16,39 +17,23 @@ import (
 )
 
 func Create(res *gin.Context) {
-	var body struct {
-		Name     string
-		FullName string
-		Contact  uint64
-		Email    string
-		Address  string
-		Gender   string
-		Password string
-	}
+	var body model.User
 	res.Bind(&body)
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 	if err != nil {
 		res.Status(500)
 		return
 	}
-	log.Println("sddd", body);
-	user := model.User{
-		Name:     body.Name,
-		FullName: body.FullName,
-		Contact:  body.Contact,
-		Email:    body.Email,
-		Address:  body.Address,
-		Gender:   body.Gender,
-		Password: string(passwordHash),
-	}
-	addUser := initializers.DB.Create(&user)
+	log.Println("sddd", body)
+	body.Password = string(passwordHash)
+	addUser := initializers.DB.Create(&body)
 
 	if addUser.Error != nil {
 		res.Status(400)
 		return
 	}
 
-	res.JSON(200, gin.H{"user": user})
+	res.JSON(200, gin.H{"user": body})
 }
 
 func Login(c *gin.Context) {
